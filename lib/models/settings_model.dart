@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class SettingsModel extends ChangeNotifier {
-  String _addrServer = '';
-  String _userName = '';
-  String _passwd = '';
+  String addrServer = '';
+  String userName = '';
+  String passwd = '';
   var url;
 
-  testConnect(String addrServer, String userName, passwd) async {
+  //SettingsModel({required this.addrServer, required this.userName, required this.passwd});
+
+  testConnect(String addrServer, String userName, String passwd) async {
     String basicAuth =
         'Basic ' + base64Encode(utf8.encode('$userName:$passwd'));
     if (addrServer.substring(0, 5) == 'https') {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tvintos_warehouse/pages/settings.dart';
+import 'package:tvintos_warehouse/pages/settings_page.dart';
 
 class DraiwerMainMenu extends StatelessWidget {
   const DraiwerMainMenu({Key? key}) : super(key: key);

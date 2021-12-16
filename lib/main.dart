@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:tvintos_warehouse/models/settings_model.dart';
 import 'package:tvintos_warehouse/pages/main_page.dart';
+import 'package:tvintos_warehouse/pages/settings_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,8 +23,9 @@ class MyApp extends StatelessWidget {
         home: MainPage(),
       ),
       providers: [
-        Provider(
-          create: (_) => SettingsModel(),
+        ChangeNotifierProvider(
+          create: (context) => SettingsModel(),
+          child: Settings(),
         ),
       ],
     );

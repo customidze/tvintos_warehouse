@@ -34,7 +34,7 @@ class Settings extends StatelessWidget {
                     width: 1.5,
                   ),
                 ),
-                hintText: 'Введите адрес сервера',
+                hintText: 'https://example.com',
                 labelText: 'Адрес сервера',
               ),
             ),
