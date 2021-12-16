@@ -4,4 +4,6 @@ class SettingsModel extends ChangeNotifier {
   String _addrServer = '';
   String _userName = '';
   String _passwd = '';
+
+  void testConnect() {}
 }
