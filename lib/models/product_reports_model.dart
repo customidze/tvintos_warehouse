@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class ProductRepostsModel extends ChangeNotifier {}
+class ProductRepostsModel extends ChangeNotifier {
+  List<ProductRepost> listProductOrders = [];
+}
 
 class ProductRepost {
   DateTime data;
