@@ -6,7 +6,7 @@ import 'package:tvintos_warehouse/pages/main_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
+  //await Hive.initFlutter();
   runApp(const MyApp());
 }
 

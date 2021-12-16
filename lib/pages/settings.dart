@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tvintos_warehouse/models/settings_model.dart';
 
 class Settings extends StatelessWidget {
   Settings({Key? key}) : super(key: key);
@@ -75,7 +77,10 @@ class Settings extends StatelessWidget {
             ),
             ElevatedButton(
               child: Text("Тест соединения"),
-              onPressed: () {},
+              onPressed: () {
+                context.read<SettingsModel>().testConnect(
+                    ctrlAddrServer.text, ctrlUserName.text, ctrlPasswd.text);
+              },
             )
           ],
         ),
