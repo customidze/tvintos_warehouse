@@ -27,13 +27,19 @@ class SettingsModel extends ChangeNotifier {
     }
 
     try {
-      final response = await http.post(url, headers: <String, String>{
-        'authorization': basicAuth
-      }).then((response) {
+      final response = await http.post(url,
+          body: '{"barcode":"4213123"}',
+          headers: <String, String>{
+            'authorization': basicAuth
+          }).then((response) {
         print(response.statusCode);
 
         print(utf8.decode(response.bodyBytes));
       });
-    } catch (e) {}
+    } catch (e) {
+      print(url);
+      print('catch');
+      print(e);
+    }
   }
 }

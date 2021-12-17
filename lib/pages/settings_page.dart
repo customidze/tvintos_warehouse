@@ -78,6 +78,7 @@ class Settings extends StatelessWidget {
             ElevatedButton(
               child: Text("Тест соединения"),
               onPressed: () {
+                print('press');
                 context.read<SettingsModel>().testConnect(
                     ctrlAddrServer.text, ctrlUserName.text, ctrlPasswd.text);
               },
