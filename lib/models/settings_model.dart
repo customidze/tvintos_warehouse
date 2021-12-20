@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -11,7 +12,7 @@ class SettingsModel extends ChangeNotifier {
 
   //SettingsModel({required this.addrServer, required this.userName, required this.passwd});
 
-  testConnect(String addrServer, String userName, String passwd) async {
+  Future testConnect(String addrServer, String userName, String passwd) async {
     String basicAuth =
         'Basic ' + base64Encode(utf8.encode('$userName:$passwd'));
     if (addrServer.substring(0, 5) == 'https') {
@@ -32,14 +33,36 @@ class SettingsModel extends ChangeNotifier {
           headers: <String, String>{
             'authorization': basicAuth
           }).then((response) {
-        print(response.statusCode);
+        // print(response.statusCode);
 
-        print(utf8.decode(response.bodyBytes));
+        // print(utf8.decode(response.bodyBytes));
+
+        if (response.statusCode == 200) {
+          saveSettingsInBD(addrServer, userName, passwd);
+          // print('200000');
+          return response.statusCode;
+        } else {
+          return false;
+        }
       });
     } catch (e) {
+      return false;
       print(url);
       print('catch');
       print(e);
     }
+  }
+
+  void saveSettingsInBD(
+      String addrServer, String userName, String passwd) async {
+    var settingsBox = await Hive.openBox('settingsBox');
+    settingsBox.put('settings',
+        {'addrServer': addrServer, 'userName': userName, 'passwd': passwd});
+  }
+
+  Future getSettingsFromDB() async {
+    var settingsBox = await Hive.openBox('settingsBox');
+    var settings = settingsBox.get('settingsBox');
+    return settings;
   }
 }

@@ -1,7 +1,97 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ProductRepostsModel extends ChangeNotifier {
   List<ProductRepost> listProductOrders = [];
+
+  getRemainNomenclature(barcode) async {
+    Map remainNomenclature = {};
+    var url;
+
+    var settingsBox = await Hive.openBox('settingsBox');
+    Map settings = await settingsBox.get('settings');
+
+    if (settings.isNotEmpty || settings == null) {
+      String addrServer = settings['addrServer'];
+      String userName = settings['userName'];
+      String passwd = settings['passwd'];
+
+      String basicAuth =
+          'Basic ' + base64Encode(utf8.encode('$userName:$passwd'));
+      if (addrServer.substring(0, 5) == 'https') {
+        url = Uri.https(addrServer.replaceFirst('https://', ''),
+            '/copy-upp-api/hs/storage/get-nomenclature');
+      } else if (addrServer.substring(0, 4) == 'http') {
+        url = Uri.http(addrServer.replaceFirst('http://', ''),
+            '/copy-upp-api/hs/storage/get-nomenclature');
+      } else {
+        remainNomenclature = {
+          'name': '',
+          'count': '',
+          'result': false,
+          'answerSrv': 'Не верный адрес сервера!'
+        };
+        //print('error');
+        //return RemainNomenclature;
+      }
+
+      try {
+        final response = await http.post(url,
+            body: '{"barcode":"$barcode"}',
+            headers: <String, String>{
+              'authorization': basicAuth
+            }).then((response) {
+          print(response.statusCode);
+          //print(utf8.decode(response.bodyBytes));
+
+          if (response.statusCode == 200) {
+            print(utf8.decode(response.bodyBytes));
+            var body = (utf8.decode(response.bodyBytes));
+
+            Map<String, dynamic> res = jsonDecode(body);
+
+            print(body);
+
+            remainNomenclature = {
+              'name': res['productNameFull'],
+              'count': res['count'],
+              'result': true,
+              'answerSrv': res['error']
+            };
+          } else {
+            remainNomenclature = {
+              'name': '',
+              'count': '',
+              'result': false,
+              'answerSrv': 'Не соединения с сервером, не 200 код!'
+            };
+          }
+        });
+      } catch (e) {
+        print(e);
+        remainNomenclature = {
+          'name': '',
+          'count': '',
+          'result': false,
+          'answerSrv': 'Не соединения с сервером'
+        };
+      }
+    } else {
+      remainNomenclature = {
+        'name': '',
+        'count': '',
+        'result': false,
+        'answerSrv': 'Не заполнены настройки соединения'
+      };
+    }
+    return remainNomenclature;
+  }
+
+  getProductsReport(dataStart, dataEnd) async {
+    notifyListeners();
+  }
 }
 
 class ProductRepost {
