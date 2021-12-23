@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 
+Future getProductsReport() async {}
+
 Future<String> testConnect(
     String addrServer, String userName, String passwd) async {
   var url;

@@ -135,13 +135,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
-  infrared_scanner:
-    dependency: "direct main"
-    description:
-      name: infrared_scanner
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.1"
   intl:
     dependency: transitive
     description:
