@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ProductRepostsModel extends ChangeNotifier {
+  //String dateStart;
+  //String dateEnd;
   List<ProductRepost> listProductOrders = [];
 
   getRemainNomenclature(barcode) async {
@@ -89,7 +91,7 @@ class ProductRepostsModel extends ChangeNotifier {
     return remainNomenclature;
   }
 
-  getProductsReport() async {
+  getProductsReport(dateStart, dateEnd) async {
     Map productRepots = {};
     var url;
 
@@ -121,9 +123,14 @@ class ProductRepostsModel extends ChangeNotifier {
       }
 
       try {
+        //print('{"DateStart":$dateStart,"DateEnd":$dateEnd}');
+        Map body = {"DateStart": dateStart, "DateEnd": dateEnd};
+
+        String jsonBody = jsonEncode(body);
+
         final response = await http.post(url,
-            body:
-                '{"DateStart":"2021-10-01T00:00:00","DateEnd":"2021-11-01T00:00:00"}',
+            //body: '{"DateStart":$dateStart,"DateEnd":$dateEnd}',
+            body: jsonBody,
             headers: <String, String>{
               'authorization': basicAuth
             }).then((response) {
@@ -172,7 +179,7 @@ class ProductRepostsModel extends ChangeNotifier {
           comment: '',
           productArea: '',
           owner: i['owner']));
-      print(i);
+      //print(i);
       //print(productRepots['ProductionShiftReport'][i]);
     }
 
