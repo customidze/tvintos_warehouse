@@ -3,10 +3,10 @@ import 'package:hive/hive.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class ProductRepostsModel extends ChangeNotifier {
+class ProductReportsModel extends ChangeNotifier {
   //String dateStart;
   //String dateEnd;
-  List<ProductRepost> listProductOrders = [];
+  List<ProductReport> listProductOrders = [];
 
   getRemainNomenclature(barcode) async {
     Map remainNomenclature = {};
@@ -92,7 +92,7 @@ class ProductRepostsModel extends ChangeNotifier {
   }
 
   getProductsReport(dateStart, dateEnd) async {
-    Map productRepots = {};
+    Map productReports = {};
     var url;
 
     var settingsBox = await Hive.openBox('settingsBox');
@@ -112,7 +112,7 @@ class ProductRepostsModel extends ChangeNotifier {
         url = Uri.http(addrServer.replaceFirst('http://', ''),
             '/copy-upp-api/hs/storage/getProductsReport');
       } else {
-        productRepots = {
+        productReports = {
           'name': '',
           'count': '',
           'result': false,
@@ -134,20 +134,20 @@ class ProductRepostsModel extends ChangeNotifier {
             headers: <String, String>{
               'authorization': basicAuth
             }).then((response) {
-          print(response.statusCode);
+          //print(response.statusCode);
           //print(utf8.decode(response.bodyBytes));
 
           if (response.statusCode == 200) {
-            print(utf8.decode(response.bodyBytes));
+            //print(utf8.decode(response.bodyBytes));
             var body = (utf8.decode(response.bodyBytes));
 
             Map<String, dynamic> res = jsonDecode(body);
 
-            print(body);
+            //print(body);
 
-            productRepots = res;
+            productReports = res;
           } else {
-            productRepots = {
+            productReports = {
               'name': '',
               'count': '',
               'result': false,
@@ -156,8 +156,8 @@ class ProductRepostsModel extends ChangeNotifier {
           }
         });
       } catch (e) {
-        print(e);
-        productRepots = {
+        //print(e);
+        productReports = {
           'name': '',
           'count': '',
           'result': false,
@@ -165,51 +165,81 @@ class ProductRepostsModel extends ChangeNotifier {
         };
       }
     } else {
-      productRepots = {
+      productReports = {
         'name': '',
         'count': '',
         'result': false,
         'answerSrv': 'Не заполнены настройки соединения'
       };
     }
-    for (var i in productRepots['ProductionShiftReport']) {
-      listProductOrders.add(ProductRepost(
-          number: i['number'],
-          data: DateTime.parse(i['date']),
-          comment: '',
-          productArea: '',
-          owner: i['owner']));
+    List pl = productReports['ProductionShiftReport'];
+
+    if (productReports['ProductionShiftReport'].length == 0) {
+      //print('0');
+      listProductOrders.clear();
+    }
+
+    for (var i in productReports['ProductionShiftReport']) {
+      ProductReport productRep = ProductReport(
+        number: i['number'],
+        data: DateTime.parse(i['date']),
+        comment: '',
+        productArea: '',
+        owner: i['owner'],
+        uid: i['uid'],
+        status: i['status'],
+      );
+
+      for (var nom in i['nomenclatureList']) {
+        productRep.nomenclature.add(Nomenclature(
+            code: nom['code'],
+            name: nom['nomenclatureFullName'],
+            count: nom['count'].toString()));
+      }
+      listProductOrders.add(productRep);
+
+      // listProductOrders.add(ProductReport(
+      //     number: i['number'],
+      //     data: DateTime.parse(i['date']),
+      //     comment: '',
+      //     productArea: '',
+      //     owner: i['owner']));
+
       //print(i);
       //print(productRepots['ProductionShiftReport'][i]);
     }
 
     notifyListeners();
 
-    return productRepots;
+    return productReports;
   }
 }
 
-class ProductRepost {
+class ProductReport {
   DateTime data;
   String number;
   String productArea;
   String comment;
   String owner;
+  String uid;
+  bool status;
   List<Nomenclature> nomenclature = [];
 
-  ProductRepost(
+  ProductReport(
       {required this.data,
       required this.number,
       required this.productArea,
       required this.comment,
-      required this.owner});
+      required this.owner,
+      required this.uid,
+      required this.status});
 }
 
 class Nomenclature {
-  String barcode;
+  String code;
+  //String barcode;
   String name;
   String count;
 
-  Nomenclature(
-      {required this.barcode, required this.name, required this.count});
+  Nomenclature({required this.code, required this.name, required this.count});
 }

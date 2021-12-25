@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:tvintos_warehouse/models/product_reports_model.dart';
+import 'package:tvintos_warehouse/models/report_model.dart';
+import 'package:tvintos_warehouse/pages/report_page.dart';
 import 'package:tvintos_warehouse/widgets/drawer_main_menu.dart';
 
 //import 'dart:convert';
@@ -16,7 +18,8 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   DateTimeRange dateRange = DateTimeRange(
-      start: DateTime.now(), end: DateTime.now().add(Duration(hours: 24 * 3)));
+      start: DateTime.now(),
+      end: DateTime.now().add(const Duration(hours: 24 * 3)));
   bool isProcessed = false;
   var _code;
   var _name;
@@ -26,14 +29,15 @@ class _MainPageState extends State<MainPage> {
   int selectedIndex = 0;
 
   DateTimeRange _dataTime = DateTimeRange(
-      start: DateTime.now(), end: DateTime.now().add(Duration(hours: 24 * 3)));
+      start: DateTime.now(),
+      end: DateTime.now().add(const Duration(hours: 24 * 3)));
   DateFormat formatterR = DateFormat('dd-MM-yyyy');
   String _value = DateTime.now().toString();
   // TextEditingController _contrDateField =
   //     TextEditingController(text: DateTime.now().toString().substring(0, 10));
   final TextEditingController _contrDateField = TextEditingController(
       text: DateTime.now()
-              .subtract(Duration(hours: 24 * 1))
+              .subtract(const Duration(hours: 24 * 1))
               .toIso8601String()
               .substring(0, 10) +
           '  -  ' +
@@ -41,7 +45,7 @@ class _MainPageState extends State<MainPage> {
   Future _selectDate() async {
     final initialDateRange = DateTimeRange(
         start: DateTime.now(),
-        end: DateTime.now().add(Duration(hours: 24 * 3)));
+        end: DateTime.now().add(const Duration(hours: 24 * 3)));
     final picked = await showDateRangePicker(
         context: context,
         locale: const Locale("ru", "RU"),
@@ -58,7 +62,7 @@ class _MainPageState extends State<MainPage> {
       String dateStart = picked.start.toIso8601String().substring(0, 19);
       String dateEnd = picked.end.toIso8601String().substring(0, 19);
       await context
-          .read<ProductRepostsModel>()
+          .read<ProductReportsModel>()
           .getProductsReport(dateStart, dateEnd);
 
       isProcessed = false;
@@ -81,24 +85,16 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
-  void initState() async {
-    // DateTime.now()
-    //           .subtract(Duration(hours: 24 * 1))
-    //           .toIso8601String()
-    //           .substring(0, 10) +
-    //       '  -  ' +
-    //       DateTime.now().toIso8601String().substring(0, 10)
+  void initState() {
     String dateStart = DateTime.now()
-        .subtract(Duration(hours: 24 * 1))
+        .subtract(const Duration(hours: 24 * 1))
         .toIso8601String()
         .substring(0, 19);
     String dateEnd = DateTime.now().toIso8601String().substring(0, 19);
 
     isProcessed = true;
     setState(() {});
-    await context
-        .read<ProductRepostsModel>()
-        .getProductsReport(dateStart, dateEnd);
+    context.read<ProductReportsModel>().getProductsReport(dateStart, dateEnd);
     isProcessed = false;
     setState(() {});
     super.initState();
@@ -114,7 +110,7 @@ class _MainPageState extends State<MainPage> {
       setState(() {});
 
       Map result = await context
-          .read<ProductRepostsModel>()
+          .read<ProductReportsModel>()
           .getRemainNomenclature(value);
 
       String name = result['name'];
@@ -170,12 +166,12 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    void onTapHandler(int index) {
-      this.setState(() {
-        this.selectedIndex = index;
-        print(this.selectedIndex);
-      });
-    }
+    // void onTapHandler(int index) {
+    //   this.setState(() {
+    //     this.selectedIndex = index;
+    //     print(this.selectedIndex);
+    //   });
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -196,13 +192,13 @@ class _MainPageState extends State<MainPage> {
                   //  });
                 });
               },
-              icon: Icon(Icons.refresh)),
+              icon: const Icon(Icons.refresh)),
         ],
-        title: Text("Склад"),
+        title: const Text("Склад"),
       ),
       drawer: const DraiwerMainMenu(),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () {},
       ),
       body: isProcessed
@@ -213,15 +209,13 @@ class _MainPageState extends State<MainPage> {
               children: [
                 Expanded(
                     flex: 1,
-                    child: Container(
-                      child: Center(
-                        child: TextFormField(
-                          controller: _contrDateField,
-                          readOnly: true,
-                          //initialValue: DateTime.now().toString(),onTap: _selectDate,)),
-                          onTap: _selectDate,
-                          //initialValue: _value,
-                        ),
+                    child: Center(
+                      child: TextFormField(
+                        controller: _contrDateField,
+                        readOnly: true,
+                        //initialValue: DateTime.now().toString(),onTap: _selectDate,)),
+                        onTap: _selectDate,
+                        //initialValue: _value,
                       ),
                     )),
                 Expanded(
@@ -233,14 +227,37 @@ class _MainPageState extends State<MainPage> {
                             color: Colors.blue,
                           ),
                       itemCount: context
-                          .watch<ProductRepostsModel>()
+                          .watch<ProductReportsModel>()
                           .listProductOrders
                           .length,
                       itemBuilder: (context, index) {
                         return InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            context.read<ReportModel>().listNomenclature =
+                                context
+                                    .read<ProductReportsModel>()
+                                    .listProductOrders[index]
+                                    .nomenclature;
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ReportPage(index)));
+                          },
                           child: Row(
                             children: [
+                              Container(
+                                  child: context
+                                          .watch<ProductReportsModel>()
+                                          .listProductOrders[index]
+                                          .status
+                                      ? Icon(
+                                          Icons.done_outline,
+                                          color: Colors.green,
+                                          size: 20,
+                                        )
+                                      : SizedBox(
+                                          width: 20,
+                                        )),
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 5),
@@ -251,7 +268,7 @@ class _MainPageState extends State<MainPage> {
                                       30,
                                   child: Text(
                                     context
-                                        .watch<ProductRepostsModel>()
+                                        .watch<ProductReportsModel>()
                                         .listProductOrders[index]
                                         .number,
                                     //maxLines: 2,
@@ -264,20 +281,20 @@ class _MainPageState extends State<MainPage> {
                                     100 *
                                     30,
                                 child: Text(context
-                                    .watch<ProductRepostsModel>()
+                                    .watch<ProductReportsModel>()
                                     .listProductOrders[index]
                                     .data
                                     .toString()
                                     .substring(0, 16)),
                               ),
-                              Container(
+                              SizedBox(
                                 height: 30,
                                 width: MediaQuery.of(context).size.width /
                                     100 *
                                     30,
                                 child: Text(
                                   context
-                                      .watch<ProductRepostsModel>()
+                                      .watch<ProductReportsModel>()
                                       .listProductOrders[index]
                                       .owner,
                                   maxLines: 3,
