@@ -59,6 +59,7 @@ class ProductReportsModel extends ChangeNotifier {
             remainNomenclature = {
               'name': res['productNameFull'],
               'count': res['count'],
+              'code': res['productCode'],
               'result': true,
               'answerSrv': res['error']
             };

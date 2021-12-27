@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => ReportModel(),
-          child: const ReportPage(0),
+          child: const ReportPage(),
         ),
       ],
     );

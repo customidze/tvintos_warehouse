@@ -5,6 +5,7 @@ import 'package:tvintos_warehouse/models/product_reports_model.dart';
 import 'package:tvintos_warehouse/models/report_model.dart';
 import 'package:tvintos_warehouse/pages/report_page.dart';
 import 'package:tvintos_warehouse/widgets/drawer_main_menu.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 //import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -17,6 +18,29 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  String _scanBarcode = 'Unknown';
+
+  Future<void> scanBarcodeNormal() async {
+    String barcodeScanRes;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      //print(barcodeScanRes);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _scanBarcode = barcodeScanRes;
+    });
+  }
+
   DateTimeRange dateRange = DateTimeRange(
       start: DateTime.now(),
       end: DateTime.now().add(const Duration(hours: 24 * 3)));
@@ -177,8 +201,73 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(
         actions: [
           IconButton(
-              onPressed: () {
-                isProcessed = !isProcessed;
+              onPressed: () async {
+                await scanBarcodeNormal();
+
+                Map result = await context
+                    .read<ProductReportsModel>()
+                    .getRemainNomenclature(_scanBarcode);
+
+                String name = result['name'];
+                //print(name);
+                String count = result['count'].toString();
+                // bool error = result['error'];
+                // String errorText = result['errorText'];
+                isProcessed = false;
+                setState(() {});
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Column(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 5.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(
+                                          width: 3, color: Colors.green)),
+                                  child: Text('Код: $_scanBarcode')),
+                            ),
+
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 5.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(
+                                          width: 3, color: Colors.green)),
+                                  child: Text('Наименование: $name')),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 5.0),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(
+                                          width: 3, color: Colors.green)),
+                                  child: Text('Количество: $count')),
+                            ),
+                            //error ? Text(errorText) : SizedBox(),
+                          ],
+                        ),
+                        //content: Text('Наименование: $name'),
+                      );
+                    });
+
+                //print(_scanBarcode);
+                //return
+
+                // String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+                //                                     COLOR_CODE,
+                //                                     CANCEL_BUTTON_TEXT,
+                //                                     isShowFlashIcon,
+                //                                     scanMode);
+                //isProcessed = !isProcessed;
                 //context.read<ProductRepostsModel>().getProductsReport();
                 // Future circ = buildShowDialog(context);
                 // print('konec');
@@ -187,12 +276,12 @@ class _MainPageState extends State<MainPage> {
                 // //await Future.delayed(const Duration(milliseconds: 50), () {
                 // // Here you can write your code
 
-                setState(() {
-                  // Here you can write your code for open new view
-                  //  });
-                });
+                // setState(() {
+                //   // Here you can write your code for open new view
+                //   //  });
+                // });
               },
-              icon: const Icon(Icons.refresh)),
+              icon: const Icon(Icons.local_see)),
         ],
         title: const Text("Склад"),
       ),
@@ -238,10 +327,15 @@ class _MainPageState extends State<MainPage> {
                                     .read<ProductReportsModel>()
                                     .listProductOrders[index]
                                     .nomenclature;
+
+                            context.read<ReportModel>().uid = context
+                                .read<ProductReportsModel>()
+                                .listProductOrders[index]
+                                .uid;
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ReportPage(index)));
+                                    builder: (context) => ReportPage()));
                           },
                           child: Row(
                             children: [
@@ -250,12 +344,12 @@ class _MainPageState extends State<MainPage> {
                                           .watch<ProductReportsModel>()
                                           .listProductOrders[index]
                                           .status
-                                      ? Icon(
+                                      ? const Icon(
                                           Icons.done_outline,
                                           color: Colors.green,
                                           size: 20,
                                         )
-                                      : SizedBox(
+                                      : const SizedBox(
                                           width: 20,
                                         )),
                               Padding(
