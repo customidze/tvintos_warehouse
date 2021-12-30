@@ -11,9 +11,25 @@ class ReportModel extends ChangeNotifier {
   String uid = '';
 
   List<Nomenclature> listNomenclature = [];
+  void clearModel() {
+    date = '';
+    code = '';
+    uid = '';
+    status = false;
+    listNomenclature.clear();
+    notifyListeners();
+  }
 
   void addNomenclature(String code, String name) {
-    listNomenclature.add(Nomenclature(code: code, name: name, count: '1'));
+    var findStr = listNomenclature.where((element) => element.code == code);
+    if (findStr.length > 0) {
+      int tek = int.parse(findStr.first.count);
+      tek = tek + 1;
+      findStr.first.count = tek.toString();
+    } else {
+      listNomenclature.add(Nomenclature(code: code, name: name, count: '1'));
+    }
+
     notifyListeners();
   }
 

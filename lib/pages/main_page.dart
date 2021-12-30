@@ -6,6 +6,7 @@ import 'package:tvintos_warehouse/models/report_model.dart';
 import 'package:tvintos_warehouse/pages/report_page.dart';
 import 'package:tvintos_warehouse/widgets/drawer_main_menu.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 //import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -18,6 +19,29 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  void playSound() {
+    final player = AudioCache();
+    player.play('audio/zvuk41.mp3');
+  }
+
+  _returnFromReport() async {
+    print('object');
+    isProcessed = true;
+    String dateStart = DateTime.now()
+        .subtract(const Duration(hours: 24 * 1))
+        .toIso8601String()
+        .substring(0, 19);
+    String dateEnd = DateTime.now().toIso8601String().substring(0, 19);
+
+    setState(() {});
+    await context
+        .read<ProductReportsModel>()
+        .getProductsReport(dateStart, dateEnd);
+    isProcessed = false;
+    setState(() {});
+    //super.initState();
+  }
+
   String _scanBarcode = 'Unknown';
 
   Future<void> scanBarcodeNormal() async {
@@ -258,28 +282,6 @@ class _MainPageState extends State<MainPage> {
                         //content: Text('Наименование: $name'),
                       );
                     });
-
-                //print(_scanBarcode);
-                //return
-
-                // String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-                //                                     COLOR_CODE,
-                //                                     CANCEL_BUTTON_TEXT,
-                //                                     isShowFlashIcon,
-                //                                     scanMode);
-                //isProcessed = !isProcessed;
-                //context.read<ProductRepostsModel>().getProductsReport();
-                // Future circ = buildShowDialog(context);
-                // print('konec');
-                //Widget circ = Circ(context);
-                //circ.
-                // //await Future.delayed(const Duration(milliseconds: 50), () {
-                // // Here you can write your code
-
-                // setState(() {
-                //   // Here you can write your code for open new view
-                //   //  });
-                // });
               },
               icon: const Icon(Icons.local_see)),
         ],
@@ -288,7 +290,13 @@ class _MainPageState extends State<MainPage> {
       drawer: const DraiwerMainMenu(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () {
+          playSound();
+          context.read<ReportModel>().clearModel();
+          Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const ReportPage()))
+              .then((value) => _returnFromReport());
+        },
       ),
       body: isProcessed
           ? const Center(
@@ -297,7 +305,7 @@ class _MainPageState extends State<MainPage> {
           : Column(
               children: [
                 Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Center(
                       child: TextFormField(
                         controller: _contrDateField,
@@ -333,9 +341,10 @@ class _MainPageState extends State<MainPage> {
                                 .listProductOrders[index]
                                 .uid;
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ReportPage()));
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ReportPage()))
+                                .then((value) => _returnFromReport());
                           },
                           child: Row(
                             children: [

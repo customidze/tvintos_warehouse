@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -13,6 +14,12 @@ class ReportPage extends StatefulWidget {
 }
 
 class _ReportPageState extends State<ReportPage> {
+  bool isProcessed = false;
+  void playSound() {
+    final player = AudioCache();
+    player.play('audio/zvuk41.mp3');
+  }
+
   String _scanBarcode = 'Unknown';
 
   Future<void> scanBarcodeNormal() async {
@@ -37,7 +44,7 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   List<TextEditingController> _controllers = [];
-  bool isProcessed = false;
+
   static const EventChannel _eventChannel = EventChannel('it-apriori.ru');
 
   @override
@@ -135,13 +142,28 @@ class _ReportPageState extends State<ReportPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         TextButton(
-                            onPressed: () {
-                              context.read<ReportModel>().saveReportIn1c(true);
+                            onPressed: () async {
+                              isProcessed = true;
+                              setState(() {});
+                              playSound();
+                              await context
+                                  .read<ReportModel>()
+                                  .saveReportIn1c(false);
+                              isProcessed = false;
+                              setState(() {});
+                              Navigator.pop(context, true);
                             },
                             child: const Text('Записать')),
                         TextButton(
-                            onPressed: () {
-                              context.read<ReportModel>().saveReportIn1c(false);
+                            onPressed: () async {
+                              isProcessed = true;
+                              setState(() {});
+                              playSound();
+                              await context
+                                  .read<ReportModel>()
+                                  .saveReportIn1c(true);
+                              setState(() {});
+                              Navigator.pop(context);
                             },
                             child: const Text('Провести'))
                       ],

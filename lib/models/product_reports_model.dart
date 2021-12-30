@@ -71,7 +71,7 @@ class ProductReportsModel extends ChangeNotifier {
               'answerSrv': 'Не соединения с сервером, не 200 код!'
             };
           }
-        });
+        }).timeout(const Duration(minutes: 1));
       } catch (e) {
         print(e);
         remainNomenclature = {
@@ -155,7 +155,7 @@ class ProductReportsModel extends ChangeNotifier {
               'answerSrv': 'Не соединения с сервером, не 200 код!'
             };
           }
-        });
+        }).timeout(const Duration(minutes: 1));
       } catch (e) {
         //print(e);
         productReports = {
@@ -179,6 +179,8 @@ class ProductReportsModel extends ChangeNotifier {
       //print('0');
       listProductOrders.clear();
     }
+
+    listProductOrders.clear();
 
     for (var i in productReports['ProductionShiftReport']) {
       ProductReport productRep = ProductReport(
