@@ -11,29 +11,78 @@ class ReportModel extends ChangeNotifier {
   String uid = '';
 
   List<Nomenclature> listNomenclature = [];
+  // List<TextEditingController> listCtr = [];
+  // List<FocusNode> listNode = [];
+
   void clearModel() {
     date = '';
     code = '';
     uid = '';
     status = false;
     listNomenclature.clear();
+    //listCtr.clear();
+    // listCtr.forEach((element) {
+    //   element.dispose();
+    // });
     notifyListeners();
   }
 
-  void addNomenclature(String code, String name) {
-    var findStr = listNomenclature.where((element) => element.code == code);
-    if (findStr.length > 0) {
-      int tek = int.parse(findStr.first.count);
-      tek = tek + 1;
-      findStr.first.count = tek.toString();
-    } else {
-      listNomenclature.add(Nomenclature(code: code, name: name, count: '1'));
+  void deleteNomenclature(index) {
+    Nomenclature nom = listNomenclature[index];
+    listNomenclature.removeAt(index);
+    // listCtr.removeAt(index);
+    // listNode.removeAt(index);
+    notifyListeners();
+  }
+
+  addNomenclature(String code, String name) {
+    if (listNomenclature.isEmpty) {
+      listNomenclature.add(Nomenclature(
+        code: code,
+        name: name,
+        count: '1',
+        tEC: TextEditingController(text: '1'),
+        fN: FocusNode(),
+      ));
+      // listCtr.add(TextEditingController(text: '1'));
+      // listNode.add(FocusNode());
+      notifyListeners();
+      return 0;
     }
 
+    for (var i = 0; i < listNomenclature.length; i++) {
+      if (listNomenclature[i].code == code) {
+        int count = int.parse(listNomenclature[i].count) + 1;
+        listNomenclature[i].count = count.toString();
+        listNomenclature[i].tEC.text = count.toString();
+        notifyListeners();
+        return i;
+      }
+    }
+    listNomenclature.add(Nomenclature(
+      code: code,
+      name: name,
+      count: '1',
+      tEC: TextEditingController(text: '1'),
+      fN: FocusNode(),
+    ));
+    // listCtr.add(TextEditingController(text: '1'));
+    // listNode.add(FocusNode());
     notifyListeners();
+    return listNomenclature.length - 1;
+
+    // var findStr = listNomenclature.where((element) => element.code == code);
+    // if (findStr.length > 0) {
+    //   int tek = int.parse(findStr.first.count);
+    //   tek = tek + 1;
+    //   findStr.first.count = tek.toString();
+    // } else {
+    //   listNomenclature.add(Nomenclature(code: code, name: name, count: '1'));
+    // }
   }
 
   saveReportIn1c(bool save) async {
+    print(listNomenclature);
     Map result;
 
     var url;

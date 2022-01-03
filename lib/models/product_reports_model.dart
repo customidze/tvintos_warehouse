@@ -7,6 +7,8 @@ class ProductReportsModel extends ChangeNotifier {
   //String dateStart;
   //String dateEnd;
   List<ProductReport> listProductOrders = [];
+  List<TextEditingController> listTEC = [];
+  List<FocusNode> listNode = [];
 
   getRemainNomenclature(barcode) async {
     Map remainNomenclature = {};
@@ -178,9 +180,13 @@ class ProductReportsModel extends ChangeNotifier {
     if (productReports['ProductionShiftReport'].length == 0) {
       //print('0');
       listProductOrders.clear();
+      listTEC.clear();
+      listNode.clear();
     }
 
     listProductOrders.clear();
+    listTEC.clear();
+    listNode.clear();
 
     for (var i in productReports['ProductionShiftReport']) {
       ProductReport productRep = ProductReport(
@@ -195,9 +201,12 @@ class ProductReportsModel extends ChangeNotifier {
 
       for (var nom in i['nomenclatureList']) {
         productRep.nomenclature.add(Nomenclature(
-            code: nom['code'],
-            name: nom['nomenclatureFullName'],
-            count: nom['count'].toString()));
+          code: nom['code'],
+          name: nom['nomenclatureFullName'],
+          count: nom['count'].toString(),
+          tEC: TextEditingController(text: nom['count'].toString()),
+          fN: FocusNode(),
+        ));
       }
       listProductOrders.add(productRep);
 
@@ -241,8 +250,16 @@ class ProductReport {
 class Nomenclature {
   String code;
   //String barcode;
+
   String name;
   String count;
+  TextEditingController tEC;
+  FocusNode fN;
 
-  Nomenclature({required this.code, required this.name, required this.count});
+  Nomenclature(
+      {required this.code,
+      required this.name,
+      required this.count,
+      required this.tEC,
+      required this.fN});
 }

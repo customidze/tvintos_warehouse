@@ -91,16 +91,16 @@ class _MainPageState extends State<MainPage> {
           '  -  ' +
           DateTime.now().toIso8601String().substring(0, 10));
   Future _selectDate() async {
-    final initialDateRange = DateTimeRange(
-        start: DateTime.now(),
-        end: DateTime.now().add(const Duration(hours: 24 * 3)));
+    final _initialDateRange = DateTimeRange(
+        end: DateTime.now(),
+        start: DateTime.now().subtract(const Duration(hours: 24)));
     final picked = await showDateRangePicker(
         context: context,
         locale: const Locale("ru", "RU"),
         //initialDate: new DateTime.now(),
         firstDate: DateTime(DateTime.now().year - 5),
         lastDate: DateTime(DateTime.now().year + 3),
-        initialDateRange: dateRange ?? initialDateRange);
+        initialDateRange: _initialDateRange);
 
     if (picked != null) {
       isProcessed = true;
@@ -340,10 +340,20 @@ class _MainPageState extends State<MainPage> {
                                 .read<ProductReportsModel>()
                                 .listProductOrders[index]
                                 .uid;
+                            context.read<ReportModel>().code = context
+                                .read<ProductReportsModel>()
+                                .listProductOrders[index]
+                                .number;
+                            // context.read<ReportModel>().listCtr =
+                            //     context.read<ProductReportsModel>().listTEC;
+                            // context.read<ReportModel>().listNode =
+                            //     context.read<ProductReportsModel>().listNode;
+
                             Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => ReportPage()))
+                                        builder: (context) =>
+                                            const ReportPage()))
                                 .then((value) => _returnFromReport());
                           },
                           child: Row(
@@ -418,7 +428,7 @@ class _MainPageState extends State<MainPage> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         });
@@ -441,6 +451,6 @@ class _CircState extends State<Circ> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: CircularProgressIndicator());
+    return const Center(child: CircularProgressIndicator());
   }
 }

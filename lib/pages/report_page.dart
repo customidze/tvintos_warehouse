@@ -1,10 +1,13 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+
 import 'package:provider/provider.dart';
 import 'package:tvintos_warehouse/models/product_reports_model.dart';
 import 'package:tvintos_warehouse/models/report_model.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ReportPage extends StatefulWidget {
   const ReportPage({Key? key}) : super(key: key);
@@ -43,26 +46,41 @@ class _ReportPageState extends State<ReportPage> {
     });
   }
 
-  List<TextEditingController> _controllers = [];
+  // final List<TextEditingController> _controllers = [];
+  // final List<FocusNode> _nodes = [];
 
   static const EventChannel _eventChannel = EventChannel('it-apriori.ru');
 
   @override
   void dispose() {
-    for (TextEditingController c in _controllers) {
-      c.dispose();
-    }
+    // //context.read<re>()
+    // for (TextEditingController c in _controllers) {
+    //   c.dispose();
+    // }
+    // for (FocusNode fn in _nodes) {
+    //   fn.dispose();
+    // }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    //_controllers.clear();
+    //_nodes.clear();
     return Scaffold(
       appBar: AppBar(
         actions: [
+          // IconButton(
+          //     onPressed: () {
+
+          //     },
+          //     icon: Icon(Icons.nat_sharp)),
           IconButton(
               onPressed: () async {
                 await scanBarcodeNormal();
+                if (_scanBarcode == '-1') {
+                  return;
+                }
 
                 Map result = await context
                     .read<ProductReportsModel>()
@@ -70,9 +88,16 @@ class _ReportPageState extends State<ReportPage> {
 
                 String name = result['name'];
                 String code = result['code'];
-                String count = result['count'].toString();
+                //String count = result['count'].toString();
 
-                context.read<ReportModel>().addNomenclature(code, name);
+                int indexListNomenclature =
+                    context.read<ReportModel>().addNomenclature(code, name);
+
+                int lengthNomen =
+                    context.read<ReportModel>().listNomenclature.length;
+
+                //setState(() {});
+                fnActive(indexListNomenclature);
               },
               icon: const Icon(Icons.local_see))
         ],
@@ -88,7 +113,10 @@ class _ReportPageState extends State<ReportPage> {
                     flex: 1,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [Text('Номер'), Text('Дата')],
+                      children: [
+                        Text(context.read<ReportModel>().code),
+                        Text('Дата')
+                      ],
                     )),
                 const Divider(
                   thickness: 3,
@@ -99,32 +127,78 @@ class _ReportPageState extends State<ReportPage> {
                     itemCount:
                         context.watch<ReportModel>().listNomenclature.length,
                     itemBuilder: (context, index) {
-                      _controllers.add(TextEditingController(
-                          text: context
-                              .read<ReportModel>()
-                              .listNomenclature[index]
-                              .count));
-                      return Row(
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: Text(context
-                                .watch<ReportModel>()
-                                .listNomenclature[index]
-                                .name),
-                          ),
-                          Expanded(
-                              flex: 1,
-                              child: TextField(
-                                controller: _controllers[index],
-                                onChanged: (count) {
-                                  context
+                      // _controllers.add(TextEditingController(
+                      //     text: context
+                      //         .read<ReportModel>()
+                      //         .listNomenclature[index]
+                      //         .count));
+                      //_nodes.add(FocusNode());
+                      return Slidable(
+                        actionPane: const SlidableDrawerActionPane(),
+                        secondaryActions: [
+                          IconSlideAction(
+                            caption: 'Удалить',
+                            color: Colors.red,
+                            icon: Icons.delete,
+                            onTap: () {
+                              //_controllers[index].dispose();
+                              //var i = _controllers.removeAt(index);
+                              //i.clear();
+                              //i.dispose();
+                              //_nodes.removeAt(index);
+                              //_controllers.clear();
+                              //_nodes.clear();
+                              context
+                                  .read<ReportModel>()
+                                  .deleteNomenclature(index);
+
+                              //_nodes[index].dispose();
+                            },
+                          )
+                        ],
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: Text(context
+                                  .watch<ReportModel>()
+                                  .listNomenclature[index]
+                                  .name),
+                            ),
+                            Expanded(
+                                flex: 1,
+                                child: TextField(
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    // FilteringTextInputFormatter.allow(
+                                    //     RegExp(r"[0-9.]")),
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  focusNode: context
                                       .read<ReportModel>()
                                       .listNomenclature[index]
-                                      .count = count;
-                                },
-                              )),
-                        ],
+                                      .fN,
+                                  //.listNode[index],
+                                  controller: context
+                                      .read<ReportModel>()
+                                      .listNomenclature[index]
+                                      .tEC,
+                                  //.listCtr[index],
+                                  onChanged: (count) {
+                                    context
+                                        .read<ReportModel>()
+                                        .listNomenclature[index]
+                                        .count = count;
+                                    // context
+                                    //     .read<ReportModel>()
+                                    //     .listCtr[index]
+                                    //     .text = count;
+                                  },
+                                )),
+                          ],
+                        ),
                       );
                     },
                     separatorBuilder: (context, index) => const Divider(
@@ -133,7 +207,7 @@ class _ReportPageState extends State<ReportPage> {
                     ),
                   ),
                 ),
-                Divider(
+                const Divider(
                   thickness: 3,
                 ),
                 Expanded(
@@ -194,20 +268,52 @@ class _ReportPageState extends State<ReportPage> {
       String count = result['count'].toString();
       String code = result['productCode'];
 
-      context
-          .read<ReportModel>()
-          .listNomenclature
-          .add(Nomenclature(code: code, name: name, count: '1'));
+      context.read<ReportModel>().addNomenclature(code, name);
+
+      // context.read<ReportModel>().listNomenclature.add(Nomenclature(
+      //       code: code,
+      //       name: name,
+      //       count: '1',
+      //     ));
+      // context.read<ReportModel>().listCtr.add(TextEditingController(text: '1'));
+      //_controllers[_controllers.length - 1].text = '1';
       // bool error = result['error'];
       // String errorText = result['errorText'];
       isProcessed = false;
-      setState(() {});
+      //List<Nomenclature> model = context.read<ReportModel>().listNomenclature;
+      //_nodes[0].requestFocus();
 
-      // setState(() {
-      //   _code = value;
-      // });
+      //FocusScope.of(context).requestFocus(model[model.length - 1].myFocusNode);
+      //SchedulerBinding.instance?.addPersistentFrameCallback((Duration _) {
+
+      //setState(() {});
+      //   //fn.requestFocus();
+      //   //FocusScope.of(context).requestFocus(fn);
+
+      //   });
+      //});
+
+      //WidgetsBinding.instance!.addPostFrameCallback((_) {
+      //FocusScope.of(context).requestFocus(_nodes[_nodes.length - 1]);
+      //});
     });
+    //FocusScope.of(context).requestFocus(_nodes[_nodes.length - 1]);
+    // setState(() {
+    //   _code = value;
+    // });
 
     super.initState();
+  }
+
+  fnActive(index) {
+    FocusScope.of(context)
+        .requestFocus(context.read<ReportModel>().listNomenclature[index].fN);
+
+    // int count = int.parse(_controllers[index].text) + 1;
+    // _controllers[index].text = count.toString();
+    // if (index == _controllers.length - 1) {
+    //   _controllers[index].text = '1';
+    // }
+    // _nodes[index].requestFocus();
   }
 }

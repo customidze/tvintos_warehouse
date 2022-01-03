@@ -39,6 +39,7 @@ dependencies:
   flutter_barcode_scanner: ^2.0.0
   audioplayers: ^0.20.1
   
+  
   #infrared_scanner: ^0.1.1
 
   # The following adds the Cupertino Icons font to your application.
