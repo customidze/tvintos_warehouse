@@ -86,6 +86,51 @@ class _ReportPageState extends State<ReportPage> {
                     .read<ProductReportsModel>()
                     .getRemainNomenclature(_scanBarcode);
 
+                if (result['result'] == false) {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Column(
+                            children: [
+                              const Text('Ошибка!',
+                                  style: TextStyle(color: Colors.red)),
+                              const Divider(
+                                thickness: 2,
+                              ),
+                              Text(result['answerSrv']),
+                            ],
+                          ),
+                          //content: Text('Наименование: $name'),
+                        );
+                      });
+
+                  return;
+                }
+
+                if (result['code'] == '') {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Column(
+                            children: const [
+                              Text('Ошибка!',
+                                  style: TextStyle(color: Colors.red)),
+                              Divider(
+                                thickness: 2,
+                              ),
+                              Text(
+                                  'Номенклатура с данным штрихкодом не найдена в базе!'),
+                            ],
+                          ),
+                          //content: Text('Наименование: $name'),
+                        );
+                      });
+
+                  return;
+                }
+
                 String name = result['name'];
                 String code = result['code'];
                 //String count = result['count'].toString();

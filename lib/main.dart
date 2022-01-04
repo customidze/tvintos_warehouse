@@ -22,8 +22,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       child: MaterialApp(
-        localizationsDelegates: [GlobalMaterialLocalizations.delegate],
-        supportedLocales: [const Locale('en'), const Locale('ru')],
+        localizationsDelegates: const [
+          //AppLocalizationsDelegate(),
+          GlobalMaterialLocalizations.delegate
+        ],
+        supportedLocales: const [Locale('en'), Locale('ru')],
         title: 'Tvintos WareHouse',
         theme: ThemeData(primarySwatch: Colors.green),
         home: const MainPage(),

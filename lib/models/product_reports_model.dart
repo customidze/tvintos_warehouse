@@ -47,16 +47,16 @@ class ProductReportsModel extends ChangeNotifier {
             headers: <String, String>{
               'authorization': basicAuth
             }).then((response) {
-          print(response.statusCode);
+          //print(response.statusCode);
           //print(utf8.decode(response.bodyBytes));
 
           if (response.statusCode == 200) {
-            print(utf8.decode(response.bodyBytes));
+            //print(utf8.decode(response.bodyBytes));
             var body = (utf8.decode(response.bodyBytes));
 
             Map<String, dynamic> res = jsonDecode(body);
 
-            print(body);
+            //print(body);
 
             remainNomenclature = {
               'name': res['productNameFull'],
@@ -75,12 +75,12 @@ class ProductReportsModel extends ChangeNotifier {
           }
         }).timeout(const Duration(minutes: 1));
       } catch (e) {
-        print(e);
+        //print(e);
         remainNomenclature = {
           'name': '',
           'count': '',
           'result': false,
-          'answerSrv': 'Не соединения с сервером'
+          'answerSrv': 'Сервер 1с не доступен'
         };
       }
     } else {
@@ -159,13 +159,14 @@ class ProductReportsModel extends ChangeNotifier {
           }
         }).timeout(const Duration(minutes: 1));
       } catch (e) {
-        //print(e);
+        print(e);
         productReports = {
           'name': '',
           'count': '',
           'result': false,
-          'answerSrv': 'Не соединения с сервером'
+          'answerSrv': 'Сервер 1с не доступен'
         };
+        return productReports;
       }
     } else {
       productReports = {
@@ -175,7 +176,7 @@ class ProductReportsModel extends ChangeNotifier {
         'answerSrv': 'Не заполнены настройки соединения'
       };
     }
-    List pl = productReports['ProductionShiftReport'];
+    //List pl = productReports['ProductionShiftReport'];
 
     if (productReports['ProductionShiftReport'].length == 0) {
       //print('0');

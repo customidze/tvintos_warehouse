@@ -28,7 +28,7 @@ class ReportModel extends ChangeNotifier {
   }
 
   void deleteNomenclature(index) {
-    Nomenclature nom = listNomenclature[index];
+    //Nomenclature nom = listNomenclature[index];
     listNomenclature.removeAt(index);
     // listCtr.removeAt(index);
     // listNode.removeAt(index);
@@ -70,20 +70,10 @@ class ReportModel extends ChangeNotifier {
     // listNode.add(FocusNode());
     notifyListeners();
     return listNomenclature.length - 1;
-
-    // var findStr = listNomenclature.where((element) => element.code == code);
-    // if (findStr.length > 0) {
-    //   int tek = int.parse(findStr.first.count);
-    //   tek = tek + 1;
-    //   findStr.first.count = tek.toString();
-    // } else {
-    //   listNomenclature.add(Nomenclature(code: code, name: name, count: '1'));
-    // }
   }
 
   saveReportIn1c(bool save) async {
-    print(listNomenclature);
-    Map result;
+    //print(listNomenclature);
 
     var url;
 
@@ -104,12 +94,6 @@ class ReportModel extends ChangeNotifier {
         url = Uri.http(addrServer.replaceFirst('http://', ''),
             '/copy-upp-api/hs/storage/creatingProductsReport');
       } else {
-        result = {
-          'name': '',
-          'count': '',
-          'result': false,
-          'answerSrv': 'Не верный адрес сервера!'
-        };
         //print('error');
         //return RemainNomenclature;
       }
@@ -142,49 +126,22 @@ class ReportModel extends ChangeNotifier {
             headers: <String, String>{
               'authorization': basicAuth
             }).then((response) {
-          print(response.statusCode);
+          //print(response.statusCode);
           //print(utf8.decode(response.bodyBytes));
 
           if (response.statusCode == 200) {
-            print(utf8.decode(response.bodyBytes));
+            //print(utf8.decode(response.bodyBytes));
             var body = (utf8.decode(response.bodyBytes));
 
             Map<String, dynamic> res = jsonDecode(body);
 
-            print(body);
+            //print(body);
 
-            result = {
-              'name': res['productNameFull'],
-              'count': res['count'],
-              'code': res['productCode'],
-              'result': true,
-              'answerSrv': res['error']
-            };
-          } else {
-            result = {
-              'name': '',
-              'count': '',
-              'result': false,
-              'answerSrv': 'Не соединения с сервером, не 200 код!'
-            };
-          }
+          } else {}
         });
       } catch (e) {
-        print(e);
-        result = {
-          'name': '',
-          'count': '',
-          'result': false,
-          'answerSrv': 'Не соединения с сервером'
-        };
+        //print(e);
       }
-    } else {
-      result = {
-        'name': '',
-        'count': '',
-        'result': false,
-        'answerSrv': 'Не заполнены настройки соединения'
-      };
-    }
+    } else {}
   }
 }

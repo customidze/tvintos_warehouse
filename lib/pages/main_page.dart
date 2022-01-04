@@ -109,11 +109,29 @@ class _MainPageState extends State<MainPage> {
 
       String dateStart = picked.start.toIso8601String().substring(0, 19);
       String dateEnd = picked.end.toIso8601String().substring(0, 19);
-      await context
+      Map res = await context
           .read<ProductReportsModel>()
           .getProductsReport(dateStart, dateEnd);
 
+      //print(res);
       isProcessed = false;
+      if (res['result'] == false) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Column(
+                  children: [
+                    Text(res['answerSrv']),
+                  ],
+                ),
+                //content: Text('Наименование: $name'),
+              );
+            });
+
+        //   return;
+
+      }
 
       setState(() {
         //print('set state');
@@ -144,6 +162,22 @@ class _MainPageState extends State<MainPage> {
     setState(() {});
     context.read<ProductReportsModel>().getProductsReport(dateStart, dateEnd);
     isProcessed = false;
+    // if (answer['answerSrv'] == 'Нет соединения с сервером') {
+    //   showDialog(
+    //       context: context,
+    //       builder: (BuildContext context) {
+    //         return AlertDialog(
+    //           title: Column(
+    //             children: [
+    //               Text('Нет соединения с сервером'),
+    //             ],
+    //           ),
+    //           //content: Text('Наименование: $name'),
+    //         );
+    //       });
+
+    //   return;
+    // }
     setState(() {});
     super.initState();
 
@@ -168,6 +202,29 @@ class _MainPageState extends State<MainPage> {
       // String errorText = result['errorText'];
       isProcessed = false;
       setState(() {});
+
+      if (result['code'] == '') {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Column(
+                  children: [
+                    const Text('Ошибка!', style: TextStyle(color: Colors.red)),
+                    Divider(
+                      thickness: 2,
+                    ),
+                    const Text(
+                        'Номенклатура с данным штрихкодом не найдена в базе!'),
+                  ],
+                ),
+                //content: Text('Наименование: $name'),
+              );
+            });
+
+        return;
+      }
+
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -227,7 +284,8 @@ class _MainPageState extends State<MainPage> {
           IconButton(
               onPressed: () async {
                 await scanBarcodeNormal();
-
+                isProcessed = true;
+                setState(() {});
                 Map result = await context
                     .read<ProductReportsModel>()
                     .getRemainNomenclature(_scanBarcode);
@@ -239,6 +297,51 @@ class _MainPageState extends State<MainPage> {
                 // String errorText = result['errorText'];
                 isProcessed = false;
                 setState(() {});
+
+                if (result['result'] == false) {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Column(
+                            children: [
+                              const Text('Ошибка!',
+                                  style: TextStyle(color: Colors.red)),
+                              const Divider(
+                                thickness: 2,
+                              ),
+                              Text(result['answerSrv']),
+                            ],
+                          ),
+                          //content: Text('Наименование: $name'),
+                        );
+                      });
+
+                  return;
+                }
+                if (result['code'] == '') {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Column(
+                            children: const [
+                              Text('Ошибка!',
+                                  style: TextStyle(color: Colors.red)),
+                              Divider(
+                                thickness: 2,
+                              ),
+                              Text(
+                                  'Номенклатура с данным штрихкодом не найдена в базе!'),
+                            ],
+                          ),
+                          //content: Text('Наименование: $name'),
+                        );
+                      });
+
+                  return;
+                }
+
                 showDialog(
                     context: context,
                     builder: (BuildContext context) {
