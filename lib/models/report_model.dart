@@ -9,6 +9,8 @@ class ReportModel extends ChangeNotifier {
   String code = '';
   bool status = false;
   String uid = '';
+  String division = '';
+  String comment = '';
 
   List<Nomenclature> listNomenclature = [];
   // List<TextEditingController> listCtr = [];
@@ -19,7 +21,10 @@ class ReportModel extends ChangeNotifier {
     code = '';
     uid = '';
     status = false;
+    division = '';
+    comment = '';
     listNomenclature.clear();
+
     //listCtr.clear();
     // listCtr.forEach((element) {
     //   element.dispose();
@@ -115,8 +120,11 @@ class ReportModel extends ChangeNotifier {
         Map bodyMap = {
           'uid': uid,
           'status': save,
-          'division': '000000071',
-          'nomenclatureList': tableMap
+          ////////////////////////////////////////
+          'division': division, //
+          //////////////////////////////////////
+          'nomenclatureList': tableMap,
+          'comment': comment,
         };
 
         var jsonBody = jsonEncode(bodyMap);

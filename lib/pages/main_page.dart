@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:tvintos_warehouse/models/product_reports_model.dart';
@@ -7,6 +11,7 @@ import 'package:tvintos_warehouse/pages/report_page.dart';
 import 'package:tvintos_warehouse/widgets/drawer_main_menu.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 //import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -19,13 +24,24 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final ScrollController scrollController = ScrollController();
+
+  void scrollDown() {
+    SchedulerBinding.instance?.addPostFrameCallback((_) {
+      print(scrollController.hasClients);
+      if (scrollController.hasClients) {
+        scrollController.jumpTo(scrollController.position.maxScrollExtent);
+      }
+    });
+  }
+
   void playSound() {
     final player = AudioCache();
     player.play('audio/zvuk41.mp3');
   }
 
   _returnFromReport() async {
-    print('object');
+    //print('object');
     isProcessed = true;
     String dateStart = DateTime.now()
         .subtract(const Duration(hours: 24 * 1))
@@ -39,8 +55,11 @@ class _MainPageState extends State<MainPage> {
         .getProductsReport(dateStart, dateEnd);
     isProcessed = false;
     setState(() {});
+    scrollDown();
     //super.initState();
   }
+
+  bool hasConnection = false;
 
   String _scanBarcode = 'Unknown';
 
@@ -115,6 +134,8 @@ class _MainPageState extends State<MainPage> {
 
       //print(res);
       isProcessed = false;
+
+      scrollDown();
       if (res['result'] == false) {
         showDialog(
             context: context,
@@ -138,20 +159,40 @@ class _MainPageState extends State<MainPage> {
 
         _dataTime = picked;
         _value = picked.toString();
-        // String _start = picked.toString().substring(0, 11);
-        // String _end = picked.toString().substring(25, 37);
         String _start = picked.start.toIso8601String().substring(0, 10);
         String _end = picked.end.toIso8601String().substring(0, 10);
-
         _contrDateField.text = _start + '  -  ' + _end;
-        //_contrDateField.text = picked.toString().substring(0, 49);
       });
     }
-    ;
   }
 
   @override
   void initState() {
+    final StreamSubscription<InternetConnectionStatus> listener =
+        InternetConnectionChecker().onStatusChange.listen(
+      (InternetConnectionStatus status) {
+        switch (status) {
+          case InternetConnectionStatus.connected:
+            // ignore: avoid_print
+            AdaptiveTheme.of(context).setLight();
+            hasConnection = true;
+            //setState(() {});
+            //MediaQuery.of(context).
+            //Theme.of(context).backgroundColor.red;
+            //print('Data connection is available.');
+            break;
+          case InternetConnectionStatus.disconnected:
+            // ignore: avoid_print
+            AdaptiveTheme.of(context).setDark();
+            hasConnection = false;
+            //Theme.of(context).colorScheme.copyWith(primary: Colors.red);
+            //setState(() {});
+            //print('You are disconnected from the internet.');
+            break;
+        }
+      },
+    );
+
     String dateStart = DateTime.now()
         .subtract(const Duration(hours: 24 * 1))
         .toIso8601String()
@@ -179,7 +220,17 @@ class _MainPageState extends State<MainPage> {
     //   return;
     // }
     setState(() {});
+
+    // scrollController.addListener(() {
+    //   if (scrollController.position.maxScrollExtent ==
+    //       scrollController.position.pixels) {
+    //     print('firing');
+    //   }
+    // });
+    scrollDown();
     super.initState();
+
+    //scrollController.addListener(() {});
 
     _eventChannel.receiveBroadcastStream().listen((value) async {
       //var v = buildShowDialog(context);
@@ -209,13 +260,12 @@ class _MainPageState extends State<MainPage> {
             builder: (BuildContext context) {
               return AlertDialog(
                 title: Column(
-                  children: [
-                    const Text('Ошибка!', style: TextStyle(color: Colors.red)),
+                  children: const [
+                    Text('Ошибка!', style: TextStyle(color: Colors.red)),
                     Divider(
                       thickness: 2,
                     ),
-                    const Text(
-                        'Номенклатура с данным штрихкодом не найдена в базе!'),
+                    Text('Номенклатура с данным штрихкодом не найдена в базе!'),
                   ],
                 ),
                 //content: Text('Наименование: $name'),
@@ -270,6 +320,12 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // void onTapHandler(int index) {
     //   this.setState(() {
@@ -281,6 +337,9 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          // hasConnection
+          //     ? const Icon(Icons.signal_wifi_4_bar)
+          //     : const Icon(Icons.not_interested),
           IconButton(
               onPressed: () async {
                 await scanBarcodeNormal();
@@ -421,6 +480,7 @@ class _MainPageState extends State<MainPage> {
                 Expanded(
                   flex: 20,
                   child: ListView.separated(
+                      controller: scrollController,
                       separatorBuilder: (BuildContext context, int index) =>
                           const Divider(
                             thickness: 3,
@@ -447,6 +507,14 @@ class _MainPageState extends State<MainPage> {
                                 .read<ProductReportsModel>()
                                 .listProductOrders[index]
                                 .number;
+                            context.read<ReportModel>().division = context
+                                .read<ProductReportsModel>()
+                                .listProductOrders[index]
+                                .division;
+                            context.read<ReportModel>().comment = context
+                                .read<ProductReportsModel>()
+                                .listProductOrders[index]
+                                .comment;
                             // context.read<ReportModel>().listCtr =
                             //     context.read<ProductReportsModel>().listTEC;
                             // context.read<ReportModel>().listNode =

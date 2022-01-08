@@ -1,3 +1,4 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -21,16 +22,39 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      child: MaterialApp(
-        localizationsDelegates: const [
-          //AppLocalizationsDelegate(),
-          GlobalMaterialLocalizations.delegate
-        ],
-        supportedLocales: const [Locale('en'), Locale('ru')],
-        title: 'Tvintos WareHouse',
-        theme: ThemeData(primarySwatch: Colors.green),
-        home: const MainPage(),
-      ),
+      // child: MaterialApp(
+      //   localizationsDelegates: const [
+      //     //AppLocalizationsDelegate(),
+      //     GlobalMaterialLocalizations.delegate
+      //   ],
+      //   supportedLocales: const [Locale('en'), Locale('ru')],
+      //   title: 'Tvintos WareHouse',
+      //   theme: ThemeData(primarySwatch: Colors.green),
+      //   home: const MainPage(),
+      // ),
+      child: AdaptiveTheme(
+          light: ThemeData(
+            //brightness: Brightness.light,
+            primarySwatch: Colors.green,
+            //accentColor: Colors.amber,
+          ),
+          dark: ThemeData(
+            //brightness: Brightness.dark,
+            primarySwatch: Colors.red,
+            //accentColor: Colors.amber,
+          ),
+          initial: AdaptiveThemeMode.light,
+          builder: (theme, darkTheme) => MaterialApp(
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate
+                ],
+                supportedLocales: const [Locale('en'), Locale('ru')],
+                title: 'Tvintos WareHouse',
+                theme: theme,
+                darkTheme: darkTheme,
+                home: const MainPage(),
+              )),
+
       providers: [
         ChangeNotifierProvider(
           create: (context) => SettingsModel(),

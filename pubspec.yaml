@@ -38,7 +38,9 @@ dependencies:
   http: ^0.13.2
   flutter_barcode_scanner: ^2.0.0
   audioplayers: ^0.20.1
-  
+  #data_connection_checker: ^0.3.4
+  internet_connection_checker: ^0.0.1+3
+  adaptive_theme: ^2.3.0
   
   #infrared_scanner: ^0.1.1
 

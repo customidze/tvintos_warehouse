@@ -193,8 +193,8 @@ class ProductReportsModel extends ChangeNotifier {
       ProductReport productRep = ProductReport(
         number: i['number'],
         data: DateTime.parse(i['date']),
-        comment: '',
-        productArea: '',
+        comment: i['comment'],
+        division: i['division'],
         owner: i['owner'],
         uid: i['uid'],
         status: i['status'],
@@ -231,7 +231,7 @@ class ProductReportsModel extends ChangeNotifier {
 class ProductReport {
   DateTime data;
   String number;
-  String productArea;
+  String division;
   String comment;
   String owner;
   String uid;
@@ -241,7 +241,7 @@ class ProductReport {
   ProductReport(
       {required this.data,
       required this.number,
-      required this.productArea,
+      required this.division,
       required this.comment,
       required this.owner,
       required this.uid,

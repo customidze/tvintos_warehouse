@@ -1,6 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
@@ -16,7 +15,43 @@ class ReportPage extends StatefulWidget {
   State<ReportPage> createState() => _ReportPageState();
 }
 
-class _ReportPageState extends State<ReportPage> {
+class _ReportPageState extends State<ReportPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late Animation<Size> animation;
+  //late Animation<double> animationWe;
+
+  List<DropdownMenuItem<dynamic>> listDMI = [
+    const DropdownMenuItem(
+      child: Text('Производственный участок №1'),
+      value: '000000072',
+    ),
+    const DropdownMenuItem(
+      child: Text('Производственный участок №2'),
+      value: '000000071',
+    ),
+    const DropdownMenuItem(
+      child: Text('Производственный участок №3'),
+      value: '000000078',
+    )
+  ];
+
+  // _ReportPageState() {
+  //   List<Map<String, String>> listDivision = [
+  //     {
+  //       '000000053': 'Производственный участок №1',
+  //       '000000046': 'Производственный участок №2',
+  //       '000000057': 'Производственный участок №3'
+  //     }
+  //   ];
+
+  //   listDivision.map((items) {
+  //     items.cast().forEach((key, value) {
+  //       listDMI.add(DropdownMenuItem(child: Text(value), value: key));
+  //     });
+  //   });
+  // }
+
   bool isProcessed = false;
   void playSound() {
     final player = AudioCache();
@@ -53,18 +88,14 @@ class _ReportPageState extends State<ReportPage> {
 
   @override
   void dispose() {
-    // //context.read<re>()
-    // for (TextEditingController c in _controllers) {
-    //   c.dispose();
-    // }
-    // for (FocusNode fn in _nodes) {
-    //   fn.dispose();
-    // }
+    controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    //Object selectedDivision = '000000071';
+    Object selectedDivision = context.read<ReportModel>().division;
     //_controllers.clear();
     //_nodes.clear();
     return Scaffold(
@@ -159,10 +190,40 @@ class _ReportPageState extends State<ReportPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Text(context.read<ReportModel>().code),
+                        AnimatedBuilder(
+                            animation: animation,
+                            builder: (ctx, ch) {
+                              return Container(
+                                color: Colors.red,
+                                width: animation.value.width,
+                                height: animation.value.height,
+                                //child: Text('11'),
+                              );
+                            }),
+
+                        // SizedBox(
+                        //     // height: 15,
+                        //     // width: 90,
+                        //     //height: animationHi.value,
+                        //     //width: animationWe.value,
+                        //     child: FadeTransition(
+                        //         opacity: animation,
+                        //         child: Text(context.read<ReportModel>().code))),
                         Text('Дата')
                       ],
                     )),
+                DropdownButton(
+                    hint: const Text('Выберите подразделение'),
+                    value: selectedDivision != '' ? selectedDivision : null,
+                    items: listDMI,
+                    onChanged: (newValue) {
+                      print(newValue);
+                      context.read<ReportModel>().division =
+                          newValue.toString();
+                      setState(() {
+                        selectedDivision = newValue.toString();
+                      });
+                    }),
                 const Divider(
                   thickness: 3,
                 ),
@@ -212,35 +273,48 @@ class _ReportPageState extends State<ReportPage> {
                             ),
                             Expanded(
                                 flex: 1,
-                                child: TextField(
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true),
-                                  inputFormatters: <TextInputFormatter>[
-                                    // FilteringTextInputFormatter.allow(
-                                    //     RegExp(r"[0-9.]")),
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  focusNode: context
-                                      .read<ReportModel>()
-                                      .listNomenclature[index]
-                                      .fN,
-                                  //.listNode[index],
-                                  controller: context
-                                      .read<ReportModel>()
-                                      .listNomenclature[index]
-                                      .tEC,
-                                  //.listCtr[index],
-                                  onChanged: (count) {
-                                    context
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    //color: Colors.grey,
+
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                        width: 2, color: Colors.grey),
+                                  ),
+                                  child: TextField(
+                                    textAlign: TextAlign.center,
+                                    decoration: const InputDecoration.collapsed(
+                                        hintText: null,
+                                        border: InputBorder.none),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                            decimal: true),
+                                    inputFormatters: <TextInputFormatter>[
+                                      // FilteringTextInputFormatter.allow(
+                                      //     RegExp(r"[0-9.]")),
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    focusNode: context
                                         .read<ReportModel>()
                                         .listNomenclature[index]
-                                        .count = count;
-                                    // context
-                                    //     .read<ReportModel>()
-                                    //     .listCtr[index]
-                                    //     .text = count;
-                                  },
+                                        .fN,
+                                    //.listNode[index],
+                                    controller: context
+                                        .read<ReportModel>()
+                                        .listNomenclature[index]
+                                        .tEC,
+                                    //.listCtr[index],
+                                    onChanged: (count) {
+                                      context
+                                          .read<ReportModel>()
+                                          .listNomenclature[index]
+                                          .count = count;
+                                      // context
+                                      //     .read<ReportModel>()
+                                      //     .listCtr[index]
+                                      //     .text = count;
+                                    },
+                                  ),
                                 )),
                           ],
                         ),
@@ -315,39 +389,26 @@ class _ReportPageState extends State<ReportPage> {
 
       context.read<ReportModel>().addNomenclature(code, name);
 
-      // context.read<ReportModel>().listNomenclature.add(Nomenclature(
-      //       code: code,
-      //       name: name,
-      //       count: '1',
-      //     ));
-      // context.read<ReportModel>().listCtr.add(TextEditingController(text: '1'));
-      //_controllers[_controllers.length - 1].text = '1';
-      // bool error = result['error'];
-      // String errorText = result['errorText'];
       isProcessed = false;
-      //List<Nomenclature> model = context.read<ReportModel>().listNomenclature;
-      //_nodes[0].requestFocus();
-
-      //FocusScope.of(context).requestFocus(model[model.length - 1].myFocusNode);
-      //SchedulerBinding.instance?.addPersistentFrameCallback((Duration _) {
-
-      //setState(() {});
-      //   //fn.requestFocus();
-      //   //FocusScope.of(context).requestFocus(fn);
-
-      //   });
-      //});
-
-      //WidgetsBinding.instance!.addPostFrameCallback((_) {
-      //FocusScope.of(context).requestFocus(_nodes[_nodes.length - 1]);
-      //});
     });
-    //FocusScope.of(context).requestFocus(_nodes[_nodes.length - 1]);
-    // setState(() {
-    //   _code = value;
-    // });
 
     super.initState();
+
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    animation = Tween<Size>(begin: const Size(95, 15), end: const Size(150, 40))
+        .animate(CurvedAnimation(parent: controller, curve: Curves.bounceIn));
+
+    controller.addStatusListener((AnimationStatus status) {
+      print(status);
+      if (status == AnimationStatus.completed) {
+        print(status);
+        controller.repeat();
+      }
+    });
   }
 
   fnActive(index) {
