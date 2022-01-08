@@ -515,6 +515,15 @@ class _MainPageState extends State<MainPage> {
                                 .read<ProductReportsModel>()
                                 .listProductOrders[index]
                                 .comment;
+                            DateTime dt = context
+                                .read<ProductReportsModel>()
+                                .listProductOrders[index]
+                                .data;
+
+                            DateFormat dateFormat = DateFormat('dd-MM-y');
+                            context.read<ReportModel>().date =
+                                dateFormat.format(dt);
+
                             // context.read<ReportModel>().listCtr =
                             //     context.read<ProductReportsModel>().listTEC;
                             // context.read<ReportModel>().listNode =

@@ -209,10 +209,11 @@ class _ReportPageState extends State<ReportPage>
                         //     child: FadeTransition(
                         //         opacity: animation,
                         //         child: Text(context.read<ReportModel>().code))),
-                        Text('Дата')
+                        Text(context.read<ReportModel>().date)
                       ],
                     )),
                 DropdownButton(
+                    borderRadius: BorderRadius.circular(10),
                     hint: const Text('Выберите подразделение'),
                     value: selectedDivision != '' ? selectedDivision : null,
                     items: listDMI,
