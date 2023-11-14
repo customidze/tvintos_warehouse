@@ -4,13 +4,16 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:laser_scanner/laser_scanner.dart';
+import 'package:laser_scanner/model/scan_result_model.dart';
+import 'package:laser_scanner/utils/enum_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:tvintos_warehouse/models/product_reports_model.dart';
 import 'package:tvintos_warehouse/models/report_model.dart';
 import 'package:tvintos_warehouse/pages/report_page.dart';
 import 'package:tvintos_warehouse/widgets/drawer_main_menu.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:audioplayers/audioplayers.dart';
+//import 'package:audioplayers/audioplayers.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 //import 'dart:convert';
@@ -25,19 +28,18 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final ScrollController scrollController = ScrollController();
+  final _laserScannerPlugin = LaserScanner();
+
+  ScanResultModel scanResultModel = ScanResultModel();
+
+  StreamSubscription? subscription;
 
   void scrollDown() {
     SchedulerBinding.instance?.addPostFrameCallback((_) {
-      print(scrollController.hasClients);
       if (scrollController.hasClients) {
         scrollController.jumpTo(scrollController.position.maxScrollExtent);
       }
     });
-  }
-
-  void playSound() {
-    final player = AudioCache();
-    player.play('audio/zvuk41.mp3');
   }
 
   _returnFromReport() async {
@@ -74,9 +76,6 @@ class _MainPageState extends State<MainPage> {
       barcodeScanRes = 'Failed to get platform version.';
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
@@ -91,7 +90,7 @@ class _MainPageState extends State<MainPage> {
   var _code;
   var _name;
   var _count;
-  static const EventChannel _eventChannel = EventChannel('neo.com/app');
+  //static const EventChannel _eventChannel = EventChannel('flutter_barcode_scanner_receiver');
 
   int selectedIndex = 0;
 
@@ -151,7 +150,6 @@ class _MainPageState extends State<MainPage> {
             });
 
         //   return;
-
       }
 
       setState(() {
@@ -166,6 +164,19 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+  // @override
+  // void didChangeDependencies() {
+
+  //   //subscription == null? _openScanner():null;
+  //   if(subscription == null){
+  //     _openScanner();
+  //   }else{
+  //     print('object');
+  //   }
+
+  //   super.didChangeDependencies();
+  // }
+
   @override
   void initState() {
     final StreamSubscription<InternetConnectionStatus> listener =
@@ -176,18 +187,13 @@ class _MainPageState extends State<MainPage> {
             // ignore: avoid_print
             AdaptiveTheme.of(context).setLight();
             hasConnection = true;
-            //setState(() {});
-            //MediaQuery.of(context).
-            //Theme.of(context).backgroundColor.red;
-            //print('Data connection is available.');
+
             break;
           case InternetConnectionStatus.disconnected:
             // ignore: avoid_print
             AdaptiveTheme.of(context).setDark();
             hasConnection = false;
-            //Theme.of(context).colorScheme.copyWith(primary: Colors.red);
-            //setState(() {});
-            //print('You are disconnected from the internet.');
+
             break;
         }
       },
@@ -203,137 +209,24 @@ class _MainPageState extends State<MainPage> {
     setState(() {});
     context.read<ProductReportsModel>().getProductsReport(dateStart, dateEnd);
     isProcessed = false;
-    // if (answer['answerSrv'] == 'Нет соединения с сервером') {
-    //   showDialog(
-    //       context: context,
-    //       builder: (BuildContext context) {
-    //         return AlertDialog(
-    //           title: Column(
-    //             children: [
-    //               Text('Нет соединения с сервером'),
-    //             ],
-    //           ),
-    //           //content: Text('Наименование: $name'),
-    //         );
-    //       });
 
-    //   return;
-    // }
     setState(() {});
 
-    // scrollController.addListener(() {
-    //   if (scrollController.position.maxScrollExtent ==
-    //       scrollController.position.pixels) {
-    //     print('firing');
-    //   }
-    // });
     scrollDown();
     super.initState();
-
-    //scrollController.addListener(() {});
-
-    _eventChannel.receiveBroadcastStream().listen((value) async {
-      //var v = buildShowDialog(context);
-      if (isProcessed) {
-        // ignore: avoid_returning_null_for_void
-        return null;
-      }
-      isProcessed = true;
-
-      setState(() {});
-
-      Map result = await context
-          .read<ProductReportsModel>()
-          .getRemainNomenclature(value);
-
-      String name = result['name'];
-      //print(name);
-      String count = result['count'].toString();
-      // bool error = result['error'];
-      // String errorText = result['errorText'];
-      isProcessed = false;
-      setState(() {});
-
-      if (result['code'] == '') {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Column(
-                  children: const [
-                    Text('Ошибка!', style: TextStyle(color: Colors.red)),
-                    Divider(
-                      thickness: 2,
-                    ),
-                    Text('Номенклатура с данным штрихкодом не найдена в базе!'),
-                  ],
-                ),
-                //content: Text('Наименование: $name'),
-              );
-            });
-
-        return;
-      }
-
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(width: 3, color: Colors.green)),
-                        child: Text('Код: $value')),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(width: 3, color: Colors.green)),
-                        child: Text('Наименование: $name')),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(width: 3, color: Colors.green)),
-                        child: Text('Количество: $count')),
-                  ),
-                  //error ? Text(errorText) : SizedBox(),
-                ],
-              ),
-              //content: Text('Наименование: $name'),
-            );
-          });
-
-      // setState(() {
-      //   _code = value;
-      // });
-    });
+    _openScanner();
   }
 
   @override
   void dispose() {
     scrollController.dispose();
+    subscription?.cancel();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // void onTapHandler(int index) {
-    //   this.setState(() {
-    //     this.selectedIndex = index;
-    //     print(this.selectedIndex);
-    //   });
-    // }
-
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -382,9 +275,9 @@ class _MainPageState extends State<MainPage> {
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return AlertDialog(
+                        return const AlertDialog(
                           title: Column(
-                            children: const [
+                            children: [
                               Text('Ошибка!',
                                   style: TextStyle(color: Colors.red)),
                               Divider(
@@ -453,11 +346,16 @@ class _MainPageState extends State<MainPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          playSound();
+          //playSound();
           context.read<ReportModel>().clearModel();
+          //dispose();
+          subscription?.cancel();
           Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const ReportPage()))
-              .then((value) => _returnFromReport());
+              .then((value) {
+                _openScanner();
+            _returnFromReport();
+          });
         },
       ),
       body: isProcessed
@@ -612,6 +510,108 @@ class _MainPageState extends State<MainPage> {
             child: CircularProgressIndicator(),
           );
         });
+  }
+
+  Future<void> _openScanner() async {
+    await _laserScannerPlugin.openScanner(
+      captureImageShow: true,
+    );
+    _setTrigger();
+    _getTrigger();
+    await onListenerScanner();
+  }
+
+  void _setTrigger() {
+    _laserScannerPlugin.setTrigger(triggering: Triggering.HOST);
+  }
+
+  void _getTrigger() async {
+    await _laserScannerPlugin.getTriggerMode();
+  }
+
+  Future<void> onListenerScanner() async {
+    subscription = await _laserScannerPlugin.onListenerScanner(
+        onListenerResultScanner: (value) async {
+      scanResultModel = value ?? ScanResultModel();
+      var temp = scanResultModel.barcode;
+      print(temp);
+      Map result = await context
+          .read<ProductReportsModel>()
+          .getRemainNomenclature(scanResultModel.barcode);
+
+      String name = result['name'];
+      //print(name);
+      String count = result['count'].toString();
+      // bool error = result['error'];
+      // String errorText = result['errorText'];
+      isProcessed = false;
+      setState(() {});
+
+      if (result['code'] == '') {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const AlertDialog(
+                title: Column(
+                  children: [
+                    Text('Ошибка!', style: TextStyle(color: Colors.red)),
+                    Divider(
+                      thickness: 2,
+                    ),
+                    Text('Номенклатура с данным штрихкодом не найдена в базе!'),
+                  ],
+                ),
+                //content: Text('Наименование: $name'),
+              );
+            });
+
+        return;
+      }
+
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                    child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(width: 3, color: Colors.green)),
+                        child: Text('Код: ${scanResultModel.barcode}')),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                    child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(width: 3, color: Colors.green)),
+                        child: Text('Наименование: $name')),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                    child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(width: 3, color: Colors.green)),
+                        child: Text('Количество: $count')),
+                  ),
+                  //error ? Text(errorText) : SizedBox(),
+                ],
+              ),
+              //content: Text('Наименование: $name'),
+            );
+          });
+
+      // setState(() {
+      //   _code = value;
+      // });
+
+      _laserScannerPlugin.stopDecode();
+    });
   }
 }
 

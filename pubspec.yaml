@@ -31,22 +31,23 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_slidable: ^0.6.0
+  flutter_slidable: ^3.0.1
   hive: ^2.0.4
   hive_flutter: ^1.1.0
   provider: ^6.0.1
-  http: ^0.13.2
+  http: ^1.1.0
   flutter_barcode_scanner: ^2.0.0
-  audioplayers: ^0.20.1
+  #audioplayers: ^5.2.0
   #data_connection_checker: ^0.3.4
-  internet_connection_checker: ^0.0.1+3
-  adaptive_theme: ^2.3.0
+  internet_connection_checker: ^1.0.0+1
+  adaptive_theme: ^3.4.1
   
   #infrared_scanner: ^0.1.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  laser_scanner: ^0.1.3
 
 dev_dependencies:
   flutter_test:

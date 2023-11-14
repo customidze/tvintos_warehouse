@@ -94,10 +94,10 @@ class ReportModel extends ChangeNotifier {
           'Basic ' + base64Encode(utf8.encode('$userName:$passwd'));
       if (addrServer.substring(0, 5) == 'https') {
         url = Uri.https(addrServer.replaceFirst('https://', ''),
-            '/copy-upp-api/hs/storage/creatingProductsReport');
+            '/uppnewPgSql/hs/storage/creatingProductsReport');
       } else if (addrServer.substring(0, 4) == 'http') {
         url = Uri.http(addrServer.replaceFirst('http://', ''),
-            '/copy-upp-api/hs/storage/creatingProductsReport');
+            '/uppnewPgSql/hs/storage/creatingProductsReport');
       } else {
         //print('error');
         //return RemainNomenclature;

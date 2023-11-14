@@ -26,10 +26,10 @@ class ProductReportsModel extends ChangeNotifier {
           'Basic ' + base64Encode(utf8.encode('$userName:$passwd'));
       if (addrServer.substring(0, 5) == 'https') {
         url = Uri.https(addrServer.replaceFirst('https://', ''),
-            '/copy-upp-api/hs/storage/get-nomenclature');
+            '/uppnewPgSql/hs/storage/get-nomenclature');
       } else if (addrServer.substring(0, 4) == 'http') {
         url = Uri.http(addrServer.replaceFirst('http://', ''),
-            '/copy-upp-api/hs/storage/get-nomenclature');
+            '/uppnewPgSql/hs/storage/get-nomenclature');
       } else {
         remainNomenclature = {
           'name': '',
@@ -99,9 +99,9 @@ class ProductReportsModel extends ChangeNotifier {
     var url;
 
     var settingsBox = await Hive.openBox('settingsBox');
-    Map settings = await settingsBox.get('settings');
+    Map? settings = await settingsBox.get('settings');
 
-    if (settings.isNotEmpty || settings == null) {
+    if (settings != null) {
       String addrServer = settings['addrServer'];
       String userName = settings['userName'];
       String passwd = settings['passwd'];
@@ -110,10 +110,10 @@ class ProductReportsModel extends ChangeNotifier {
           'Basic ' + base64Encode(utf8.encode('$userName:$passwd'));
       if (addrServer.substring(0, 5) == 'https') {
         url = Uri.https(addrServer.replaceFirst('https://', ''),
-            '/copy-upp-api/hs/storage/getProductsReport');
+            '/uppnewPgSql/hs/storage/getProductsReport');
       } else if (addrServer.substring(0, 4) == 'http') {
         url = Uri.http(addrServer.replaceFirst('http://', ''),
-            '/copy-upp-api/hs/storage/getProductsReport');
+            '/uppnewPgSql/hs/storage/getProductsReport');
       } else {
         productReports = {
           'name': '',
@@ -175,6 +175,7 @@ class ProductReportsModel extends ChangeNotifier {
         'result': false,
         'answerSrv': 'Не заполнены настройки соединения'
       };
+      return null;
     }
     //List pl = productReports['ProductionShiftReport'];
 

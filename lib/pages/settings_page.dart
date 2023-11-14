@@ -8,8 +8,8 @@ import 'package:provider/provider.dart';
 class Settings extends StatelessWidget {
   Settings({Key? key}) : super(key: key);
   final ctrlAddrServer =
-      TextEditingController(text: 'http://192.168.1.135:443');
-  final ctrlUserName = TextEditingController(text: 'testapi');
+      TextEditingController(text: 'http://192.168.1.118:443');
+  final ctrlUserName = TextEditingController(text: 'nburenkovaTSD');
   final ctrlPasswd = TextEditingController(text: 'sc1or6');
 
   @override
@@ -34,7 +34,7 @@ class Settings extends StatelessWidget {
                 // ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                     color: Colors.red,
                     width: 1.5,
                   ),
@@ -51,7 +51,7 @@ class Settings extends StatelessWidget {
                 decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15.0),
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: Colors.red,
                       width: 1.5,
                     ),
@@ -73,7 +73,7 @@ class Settings extends StatelessWidget {
                 // ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                     color: Colors.red,
                     width: 1.5,
                   ),
@@ -83,7 +83,7 @@ class Settings extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              child: Text("Тест соединения"),
+              child: const Text("Тест соединения"),
               onPressed: () async {
                 if (ctrlAddrServer.text == '' ||
                     ctrlUserName.text == '' ||
@@ -91,7 +91,7 @@ class Settings extends StatelessWidget {
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return AlertDialog(
+                        return const AlertDialog(
                           title: Text('Заполните все поля'),
                         );
                       });
@@ -107,7 +107,7 @@ class Settings extends StatelessWidget {
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return AlertDialog(
+                        return const AlertDialog(
                           title: Text('Соединение успешно'),
                         );
                       });
@@ -115,7 +115,7 @@ class Settings extends StatelessWidget {
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return AlertDialog(
+                        return const AlertDialog(
                           title: Text('Соединение провалено!'),
                         );
                       });
